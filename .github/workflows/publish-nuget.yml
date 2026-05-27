@@ -23,7 +23,7 @@ jobs:
           global-json-file: global.json
 
       - name: Restore
-        run: dotnet restore StateManagementSharp.sln
+        run: dotnet restore StateManagementSharp.Tests/StateManagementSharp.Tests.csproj
 
       - name: Build library
         run: dotnet build StateManagementSharp/StateManagementSharp.csproj -c Release --no-restore
