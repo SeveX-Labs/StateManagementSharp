@@ -2,7 +2,7 @@
 {
     public interface ActionFactory
     {
-        Action? CreateAction<A>() where A : Action;
+        IAction? CreateAction<A>() where A : IAction;
 
     }
 }

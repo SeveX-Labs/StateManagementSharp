@@ -4,7 +4,7 @@ using StateManagementSharp.Exceptions;
 
 namespace StateManagementSharp
 {
-    public class ActionContext<TS, TR> where TS : State where TR : RootState
+    public class ActionContext<TS, TR> where TS : IState where TR : IRootState
     {
         #region auto-properties
 
@@ -28,7 +28,7 @@ namespace StateManagementSharp
 
         public TR RootState { get; }
 
-        public void Commit<TM, TP>(TP payload) where TM : Mutation<TS, TP>
+        public void Commit<TM, TP>(TP payload) where TM : IMutation<TS, TP>
         {
             Module.Commit<TM, TP>(payload);
         }
@@ -38,12 +38,12 @@ namespace StateManagementSharp
             Module.Commit(mutationName, payload);
         }
 
-        public async Task Dispatch<TA>(object? payload) where TA : Action<TS, TR>
+        public async Task Dispatch<TA>(object? payload) where TA : IAction<TS, TR>
         {
             await Module.Dispatch<TA>(payload);
         }
 
-        public async Task Dispatch<A>() where A : Action<TS, TR>
+        public async Task Dispatch<A>() where A : IAction<TS, TR>
         {
             await Module.Dispatch<A>(null);
         }

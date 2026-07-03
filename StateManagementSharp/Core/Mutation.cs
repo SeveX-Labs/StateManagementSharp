@@ -1,11 +1,11 @@
 ﻿namespace StateManagementSharp
 {
-    public interface Mutation
+    public interface IMutation
     {
 
     }
 
-    public interface Mutation<S, P> : Mutation where S : State
+    public interface IMutation<S, P> : IMutation where S : IState
     {
         S Apply(S state, P payload);
     }

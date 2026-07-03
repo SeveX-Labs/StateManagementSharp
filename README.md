@@ -9,11 +9,13 @@ StateManagementSharp is a lightweight, dependency-injection-native library for *
 
 It is conceptually inspired by store/module/action/mutation architectures (such as Vuex and NGXS), but it is a pure .NET library: no JavaScript runtime, no Vue/Angular dependency, and it builds directly on `Microsoft.Extensions.DependencyInjection`.
 
+See [CHANGELOG.md](CHANGELOG.md) for release history.
+
 ## What it is (and what it is not)
 
 **It is** a small, structured container for state that is shared across many parts of an app — the kind of state that does not belong to a single view or view model (session/profile, app context, feature-level domain state) — plus a disciplined way to read and change it.
 
-**It is not** a reactive UI framework. In this version, changing state does **not** automatically raise change notifications: after dispatching an action you read the current state (for example, refreshing bindable properties in a view model). Automatic change notification is planned for a future release (see [Roadmap](#roadmap)).
+**It is not** a full reactive UI framework or an Rx pipeline. It does, however, raise change notifications: both `Store` and each `ModuleBase` expose a `StateChanged` event and an `Observe(selector, onChanged)` API (with distinct-until-changed), and the companion **`StateManagementSharp.Maui`** package turns those into automatic, UI-thread-marshaled bindings. The UI layer itself stays yours.
 
 ## When to use it
 
@@ -25,7 +27,7 @@ It is conceptually inspired by store/module/action/mutation architectures (such 
 ## When NOT to use it
 
 - You only need **per-view-model local state** — the MVVM Toolkit is simpler and sufficient.
-- You need **automatic UI updates today** from state changes — that is not implemented yet.
+- You want a **full reactive framework** (Rx streams, operators, effects) — StateManagementSharp signals *that* state changed and lets you observe selectors, but it does not model event pipelines.
 - You need **Redux DevTools, time-travel debugging, or effects middleware** now — consider Fluxor.
 - You want **reactive streams** over state — consider ReactiveUI.
 
@@ -42,17 +44,19 @@ It is conceptually inspired by store/module/action/mutation architectures (such 
 
 MAUI apps often need state that outlives a single page and is shared by several view models — session and profile data, an app-context/busy flag, feature state. StateManagementSharp gives that state a single home and a predictable update path, registered through the same DI container MAUI already uses.
 
-Because there is no automatic change notification yet, a view model reads the store after dispatching (see the [MAUI example](#net-maui-usage) below). This keeps the 1.x line honest and simple; reactive binding is on the [roadmap](#roadmap).
+With the **`StateManagementSharp.Maui`** package, a view model derives from `StoreBindableObject` and binds selectors to `BindableValue<T>` properties; changes are pushed to the UI thread automatically, with no manual refresh (see the [MAUI example](#net-maui-usage) below).
 
 ## Features
 
 - Store-based application state with `Store<TRootState>`.
 - Feature modules through `ModuleBase<TState, TRootState>`.
-- Asynchronous actions through `Action<TState, TRootState>`.
-- State updates through `Mutation<TState, TPayload>`.
+- Asynchronous actions through `IAction<TState, TRootState>`.
+- State updates through `IMutation<TState, TPayload>`.
 - Typed module dispatch with `Dispatch<TAction>()` and typed commits with `Commit<TMutation, TPayload>(payload)`.
 - Name-based `Dispatch(actionName)` and `Commit(mutationName, payload)` where supported.
+- Change notification via `StateChanged` events on `Store`/`ModuleBase`, plus `Observe(selector, onChanged)` with distinct-until-changed.
 - DI setup with `AddStateManagementSharp(params Assembly[])` and assembly scanning for concrete action types.
+- First-class .NET MAUI integration via the companion `StateManagementSharp.Maui` package (`UseStateManagementSharp<TStore>`, `StoreBindableObject`, `BindableValue<T>`).
 - Runs on .NET MAUI, ASP.NET Core / Web API, worker services, and console apps.
 - Built directly on `Microsoft.Extensions.DependencyInjection`.
 
@@ -61,10 +65,33 @@ Because there is no automatic change notification yet, a view model reads the st
 Install the package from NuGet:
 
 ```bash
-dotnet add package StateManagementSharp --version 1.1.0
+dotnet add package StateManagementSharp --version 2.0.0
 ```
 
-The NuGet package contains the core `StateManagementSharp` library. The MAUI sample app is included in this repository as an example and is not part of the package.
+For .NET MAUI apps, also install the integration package (it depends on the core package):
+
+```bash
+dotnet add package StateManagementSharp.Maui --version 2.0.0
+```
+
+The core `StateManagementSharp` package multi-targets `netstandard2.0`, `net8.0`, and `net10.0`. `StateManagementSharp.Maui` targets the MAUI platforms (`net10.0-android`, `net10.0-ios`, `net10.0-maccatalyst`). The MAUI sample app in this repository is an example and is not part of either package.
+
+## Migrating from 1.x to 2.0
+
+2.0 is a breaking release. The marker interfaces were renamed to the conventional `I`-prefix, which also removes the long-standing collision between `Action<TState, TRootState>` and `System.Action<T1, T2>` — you no longer need to fully qualify `StateManagementSharp.Action`.
+
+| 1.x | 2.0 |
+| --- | --- |
+| `State` | `IState` |
+| `RootState` | `IRootState` |
+| `Action` / `Action<TS, TR>` | `IAction` / `IAction<TS, TR>` |
+| `Mutation` / `Mutation<S, P>` | `IMutation` / `IMutation<S, P>` |
+| `Module` | `IModule` |
+| `StateManagementSharp.Action<...>` (qualified to dodge `System.Action`) | `IAction<...>` (no qualification needed) |
+
+`ActionContext<TS, TR>`, the factory interfaces (`ActionFactory`, `MutationFactory`, `StateFactory`), `Store<TR>`, and `ModuleBase<TS, TR>` keep their names. A whole-word replace of the five marker names in type positions covers almost every project; then drop any `StateManagementSharp.` qualifier in front of `Action`.
+
+New in 2.0: subscribe to `Store.StateChanged` / `ModuleBase.StateChanged`, or call `Observe(selector, onChanged)` for fine-grained updates. In MAUI, add the `StateManagementSharp.Maui` package and derive view models from `StoreBindableObject` instead of hand-writing `INotifyPropertyChanged`.
 
 ## Basic Setup
 
@@ -85,7 +112,7 @@ The following example shows the core pattern: define a root state, a module stat
 using Microsoft.Extensions.DependencyInjection;
 using StateManagementSharp;
 
-public sealed class AppState : RootState
+public sealed class AppState : IRootState
 {
     private AppStore Store { get; }
 
@@ -97,7 +124,7 @@ public sealed class AppState : RootState
     }
 }
 
-public sealed record CounterState(int Value) : State;
+public sealed record CounterState(int Value) : IState;
 
 public sealed class CounterModule : ModuleBase<CounterState, AppState>
 {
@@ -117,7 +144,7 @@ public sealed class CounterModule : ModuleBase<CounterState, AppState>
     }
 }
 
-public sealed class IncrementMutation : Mutation<CounterState, int>
+public sealed class IncrementMutation : IMutation<CounterState, int>
 {
     public CounterState Apply(CounterState state, int amount)
     {
@@ -125,7 +152,7 @@ public sealed class IncrementMutation : Mutation<CounterState, int>
     }
 }
 
-public sealed class IncrementAction : StateManagementSharp.Action<CounterState, AppState>
+public sealed class IncrementAction : IAction<CounterState, AppState>
 {
     public Task Execute(ActionContext<CounterState, AppState> context, object? payload)
     {
@@ -188,38 +215,83 @@ await store.Counter.Dispatch<IncrementAction>(5);
 var value = store.State?.Counter.Value;
 ```
 
+## Reacting to state changes
+
+Every commit raises `StateChanged` on the owning module and on the store. For fine-grained updates, `Observe` a selector — it emits the current value immediately, then again only when the projected value changes:
+
+```csharp
+store.InitializeStore();
+
+// Fires now with the initial value, then on every distinct change.
+using var subscription = store.Counter.Observe(
+    state => state.Value,
+    value => Console.WriteLine($"Counter is now {value}"));
+
+// Any module commit re-evaluates a store-level selector:
+store.StateChanged += (_, _) => Console.WriteLine("Something changed");
+
+await store.Counter.Dispatch<IncrementAction>(5);   // prints "Counter is now 5"
+```
+
+Callbacks run synchronously on the thread that committed; UI-thread marshaling is handled by the `StateManagementSharp.Maui` package (below). Dispose the `Observe` subscription to stop receiving updates.
+
 ## .NET MAUI Usage
 
-The sample app registers the store in `MauiProgram.cs`:
+Install `StateManagementSharp.Maui` and register the store on the app builder:
 
 ```csharp
-builder.Services.AddStateManagementSharp(typeof(InternalStore).Assembly);
-builder.Services.AddSingleton<InternalStore>();
+builder
+    .UseMauiApp<App>()
+    .UseStateManagementSharp<InternalStore>();   // factories + action scan + AddSingleton<InternalStore>
 ```
 
-A plain ViewModel can receive the store from DI, initialize it, dispatch actions, and read the current state. Note that state changes do not raise notifications yet, so the ViewModel reads the store after each dispatch:
+Derive the view model from `StoreBindableObject` and bind selectors to `BindableValue<T>` properties. Changes are marshaled to the UI thread automatically — no manual refresh, no hand-written `INotifyPropertyChanged`:
 
 ```csharp
-public sealed class MainPageViewModel
+public sealed class MainPageViewModel : StoreBindableObject
 {
-    private readonly InternalStore _store;
-
-    public MainPageViewModel(InternalStore store)
+    public MainPageViewModel(InternalStore store, IDispatcher dispatcher)
+        : base(dispatcher)
     {
-        _store = store;
-        _store.InitializeStore();
+        store.InitializeStore();
+
+        FirstName = Bind(store.ProfileModule, s => s.FirstName);
+        IsBusy    = Bind(store.AppContextModule, s => s.IsBusy);
+
+        LoadProfileCommand = new Command(async () => await store.ProfileModule.Dispatch<LoadProfileAction>());
     }
 
-    public async Task LoadAsync()
-    {
-        await _store.ProfileModule.Dispatch<LoadProfileAction>();
-
-        // Read current state after dispatch (no automatic change notification yet).
-        var profile = _store.State?.ProfileState;
-        var firstName = profile?.FirstName;
-    }
+    public BindableValue<string?> FirstName { get; }
+    public BindableValue<bool> IsBusy { get; }
+    public ICommand LoadProfileCommand { get; }
 }
 ```
+
+Bind the `.Value` path in XAML:
+
+```xml
+<Label Text="{Binding FirstName.Value}" />
+<Label Text="{Binding IsBusy.Value}" />
+```
+
+`BindableValue<T>` implements `INotifyPropertyChanged` (woven at compile time by Fody, inside the package), so the view updates whenever the selected value changes.
+
+### `Bind` vs `Observe`
+
+- **`Bind(selector)`** — for values the **UI displays**, raw or **derived/computed**. It returns a `BindableValue<T>` that recomputes after every commit and is marshaled to the UI thread for you. Use it for anything the view binds to.
+- **`Observe(selector, onChanged)`** — for **reacting** to state changes with a **side-effect** (logging, navigation, analytics, refreshing non-bound data). It runs on the thread that committed, so marshal yourself if you touch the UI. Both are distinct-until-changed (`EqualityComparer<T>.Default`), so identical values don't fire.
+
+```csharp
+// Bind: a DERIVED value shown by the UI (no such field exists in the state).
+Summary = Bind(store.ProfileModule, s => s.IsLoaded ? $"{s.FirstName} {s.LastName}" : "—");
+
+// Observe: a side-effect reaction (here, appending to a log).
+_subscription = store.ProfileModule.Observe(
+    s => s.IsLoaded,
+    loaded => AppendLog(loaded ? "profile loaded" : "profile cleared"));
+```
+
+The sample app (`SAMPLE/StateManagementSharp.Sample.Maui`) demonstrates both side by side, with derived `Bind` values and a visible Observe reaction log.
 
 ## Web API And Console Usage
 
@@ -253,8 +325,11 @@ It demonstrates:
 ```bash
 dotnet restore StateManagementSharp.sln
 dotnet build StateManagementSharp/StateManagementSharp.csproj -c Release
-dotnet build SAMPLE/StateManagementSharp.Sample.Maui/StateManagementSharp.Sample.Maui.csproj -f net10.0-android -c Debug
+dotnet build StateManagementSharp.Maui/StateManagementSharp.Maui.csproj -c Release -p:MauiVersion=<installed-maui-version>
+dotnet build SAMPLE/StateManagementSharp.Sample.Maui/StateManagementSharp.Sample.Maui.csproj -f net10.0-android -c Debug -p:MauiVersion=<installed-maui-version>
 ```
+
+Pass `-p:MauiVersion` matching your installed MAUI workload (for example `10.0.20`) when building the MAUI package or sample. Building `StateManagementSharp.Maui` for the iOS and MacCatalyst target frameworks requires macOS.
 
 ## Tests
 
@@ -272,19 +347,24 @@ The package multi-targets **`netstandard2.0`, `net8.0`, and `net10.0`**, so it c
 
 ## Roadmap
 
+Shipped in 2.0:
+
+- Change notification (`StateChanged` + `Observe`) and automatic, UI-thread-marshaled binding via the `StateManagementSharp.Maui` package (bindable adapters woven with **[Fody](https://github.com/Fody/Fody)**).
+
 Planned, but not available yet:
 
-- Automatic change notification for bindable UI (implemented via **[Fody](https://github.com/Fody/Fody)**), so views update without manual refresh.
-- A dedicated `StateManagementSharp.Maui` integration package.
-- Logging/diagnostics middleware.
+- Source-generated action/mutation registration to replace runtime reflection (`MakeGenericMethod`), enabling iOS full-AOT/trimming.
+- Logging/diagnostics and Redux-style middleware (DevTools).
+- Relaxing the same-assembly discovery constraint.
 
 ## Known Limitations
 
 - StateManagementSharp is not a complete Vuex or NGXS clone.
-- No automatic UI change notification yet: read state after dispatch.
-- No built-in persistence, time-travel, or devtools support in the 1.x line.
+- No built-in persistence, time-travel, or DevTools support.
+- **iOS full-AOT / trimming is not supported yet.** Name-based `Dispatch`/`Commit` use runtime reflection (`Assembly.GetTypes()`, `MakeGenericMethod`) that fails under full AOT/trimming; the typed `Dispatch<TAction>`/`Commit<TMutation, TPayload>` and `Observe` paths are AOT-safe. The fix (source-generated registration) is planned; the sample keeps `PublishTrimmed`/`RunAOTCompilation` disabled.
 - Store lifecycle and scoping depend on the app's DI registration; register the store as a singleton for app-wide state.
 - Action and mutation discovery scans the store's own assembly, so the store, its modules, actions, and mutations are expected to live in the same assembly.
+- On `netstandard2.0`, using C# `record`/`init`-only state types requires an `IsExternalInit` polyfill in the consumer project (not needed on `net8.0`/`net10.0`).
 
 ## License
 

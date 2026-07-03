@@ -12,7 +12,7 @@ namespace StateManagementSharp
             ServiceProvider = serviceProvider;
         }
 
-        public Action? CreateAction<A>() where A : Action
+        public IAction? CreateAction<A>() where A : IAction
         {
             return ServiceProvider.GetRequiredService<A>();
         }

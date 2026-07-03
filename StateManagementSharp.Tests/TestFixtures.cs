@@ -4,11 +4,11 @@ namespace StateManagementSharp.Tests;
 
 internal sealed record TestDependency(string Value);
 
-internal sealed class TestRootState : RootState
+internal sealed class TestRootState : IRootState
 {
 }
 
-internal sealed class TestState : State
+internal sealed class TestState : IState
 {
     public int DispatchCount { get; set; }
     public string? LastPayload { get; set; }
@@ -70,7 +70,7 @@ internal sealed class TestModule : ModuleBase<TestState, TestRootState>
     }
 }
 
-internal sealed class TestAction : StateManagementSharp.Action<TestState, TestRootState>
+internal sealed class TestAction : IAction<TestState, TestRootState>
 {
     public Task Execute(ActionContext<TestState, TestRootState> context, object? payload)
     {
@@ -81,7 +81,7 @@ internal sealed class TestAction : StateManagementSharp.Action<TestState, TestRo
     }
 }
 
-internal sealed class DependencyAction(TestDependency dependency) : StateManagementSharp.Action<TestState, TestRootState>
+internal sealed class DependencyAction(TestDependency dependency) : IAction<TestState, TestRootState>
 {
     public TestDependency Dependency { get; } = dependency;
 
@@ -91,12 +91,12 @@ internal sealed class DependencyAction(TestDependency dependency) : StateManagem
     }
 }
 
-internal abstract class AbstractAction : StateManagementSharp.Action<TestState, TestRootState>
+internal abstract class AbstractAction : IAction<TestState, TestRootState>
 {
     public abstract Task Execute(ActionContext<TestState, TestRootState> context, object? payload);
 }
 
-internal sealed class GenericAction<T> : StateManagementSharp.Action<TestState, TestRootState>
+internal sealed class GenericAction<T> : IAction<TestState, TestRootState>
 {
     public Task Execute(ActionContext<TestState, TestRootState> context, object? payload)
     {
@@ -104,7 +104,7 @@ internal sealed class GenericAction<T> : StateManagementSharp.Action<TestState, 
     }
 }
 
-internal sealed class SetValueMutation : Mutation<TestState, string>
+internal sealed class SetValueMutation : IMutation<TestState, string>
 {
     public TestState Apply(TestState state, string payload)
     {
@@ -113,7 +113,7 @@ internal sealed class SetValueMutation : Mutation<TestState, string>
     }
 }
 
-internal sealed class NamedMutation : Mutation<TestState, string>
+internal sealed class NamedMutation : IMutation<TestState, string>
 {
     public TestState Apply(TestState state, string payload)
     {
@@ -122,7 +122,7 @@ internal sealed class NamedMutation : Mutation<TestState, string>
     }
 }
 
-internal sealed class ExplodingMutation : Mutation<TestState, string>
+internal sealed class ExplodingMutation : IMutation<TestState, string>
 {
     public TestState Apply(TestState state, string payload)
     {

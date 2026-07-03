@@ -2,11 +2,11 @@
 
 namespace StateManagementSharp
 {
-    public interface Action
+    public interface IAction
     {
     }
 
-    public interface Action<TS, TR> : Action where TS : State where TR : RootState
+    public interface IAction<TS, TR> : IAction where TS : IState where TR : IRootState
     {
         Task Execute(ActionContext<TS, TR> context, object? payload);
     }

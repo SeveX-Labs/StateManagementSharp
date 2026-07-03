@@ -6,7 +6,7 @@ namespace StateManagementSharp
     {
         #region StateFactory implementation
 
-        public S? CreateState<S>() where S : State
+        public S? CreateState<S>() where S : IState
         {
             return (S?)Activator.CreateInstance(typeof(S), true);
         }

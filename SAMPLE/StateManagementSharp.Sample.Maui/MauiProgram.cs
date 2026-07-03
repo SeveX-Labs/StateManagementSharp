@@ -13,8 +13,7 @@ public static class MauiProgram
         builder
             .UseMauiApp<App>();
 
-        builder.Services.AddStateManagementSharp(typeof(InternalStore).Assembly);
-        builder.Services.AddSingleton<InternalStore>();
+        builder.UseStateManagementSharp<InternalStore>();
         builder.Services.AddTransient<MainPageViewModel>();
         builder.Services.AddTransient<MainPage>();
 

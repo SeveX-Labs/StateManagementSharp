@@ -17,7 +17,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<StateFactory, StateFactoryActivator>();
             services.TryAddTransient<ActionFactory, ServiceProviderActionFactory>();
 
-            var openActionType = typeof(StateManagementSharp.Action<,>);
+            var openActionType = typeof(IAction<,>);
             var actionTypes = assemblies
                 .Where(assembly => assembly is not null)
                 .SelectMany(assembly => openActionType.GetAllImplementingTypes(assembly))
