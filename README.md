@@ -274,6 +274,23 @@ Bind the `.Value` path in XAML:
 
 `BindableValue<T>` implements `INotifyPropertyChanged` (woven at compile time by Fody, inside the package), so the view updates whenever the selected value changes.
 
+### `Bind` vs `Observe`
+
+- **`Bind(selector)`** — for values the **UI displays**, raw or **derived/computed**. It returns a `BindableValue<T>` that recomputes after every commit and is marshaled to the UI thread for you. Use it for anything the view binds to.
+- **`Observe(selector, onChanged)`** — for **reacting** to state changes with a **side-effect** (logging, navigation, analytics, refreshing non-bound data). It runs on the thread that committed, so marshal yourself if you touch the UI. Both are distinct-until-changed (`EqualityComparer<T>.Default`), so identical values don't fire.
+
+```csharp
+// Bind: a DERIVED value shown by the UI (no such field exists in the state).
+Summary = Bind(store.ProfileModule, s => s.IsLoaded ? $"{s.FirstName} {s.LastName}" : "—");
+
+// Observe: a side-effect reaction (here, appending to a log).
+_subscription = store.ProfileModule.Observe(
+    s => s.IsLoaded,
+    loaded => AppendLog(loaded ? "profile loaded" : "profile cleared"));
+```
+
+The sample app (`SAMPLE/StateManagementSharp.Sample.Maui`) demonstrates both side by side, with derived `Bind` values and a visible Observe reaction log.
+
 ## Web API And Console Usage
 
 StateManagementSharp uses Microsoft DI, so the setup is the same in ASP.NET Core, worker services, and console apps:
