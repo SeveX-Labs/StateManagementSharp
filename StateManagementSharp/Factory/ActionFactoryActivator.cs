@@ -6,7 +6,7 @@ namespace StateManagementSharp
     {
         #region ctor(s)
 
-        public Action? CreateAction<TA>() where TA : Action
+        public IAction? CreateAction<TA>() where TA : IAction
         {
             return (TA?)Activator.CreateInstance(typeof(TA), true);
         }

@@ -1,6 +1,6 @@
 namespace StateManagementSharp.Sample.Maui.Store;
 
-public readonly struct AppContextState : State
+public readonly struct AppContextState : IState
 {
     public string ApplicationTitle { get; }
     public bool IsBusy { get; }

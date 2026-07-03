@@ -6,7 +6,7 @@ using StateManagementSharp.Exceptions;
 namespace StateManagementSharp
 {
 
-    public abstract class ModuleBase<TS, TR> : Module where TS : State where TR : RootState
+    public abstract class ModuleBase<TS, TR> : IModule where TS : IState where TR : IRootState
     {
         #region autp-properties
 
@@ -39,24 +39,24 @@ namespace StateManagementSharp
         #region access methods
 
 
-        public void Commit<TM, TP>(TP payload) where TM : Mutation<TS, TP>
+        public void Commit<TM, TP>(TP payload) where TM : IMutation<TS, TP>
         {
             if (State is null) throw new MissingStateException(nameof(State));
 
-            if (MutationFactory.CreateMutation<TM>() is Mutation<TS, TP> mutation)
+            if (MutationFactory.CreateMutation<TM>() is IMutation<TS, TP> mutation)
                 State = mutation.Apply(State, payload);
         }
 
-        public async Task Dispatch<TA>() where TA : Action<TS, TR>
+        public async Task Dispatch<TA>() where TA : IAction<TS, TR>
         {
             await Dispatch<TA>(null);
         }
 
-        public async Task Dispatch<TA>(object? payload) where TA : Action<TS, TR>
+        public async Task Dispatch<TA>(object? payload) where TA : IAction<TS, TR>
         {
             if (RootState is null) throw new MissingRootStateException(nameof(RootState));
 
-            if (ActionFactory.CreateAction<TA>() is Action<TS, TR> action)
+            if (ActionFactory.CreateAction<TA>() is IAction<TS, TR> action)
             {
                 var actionContext = new ActionContext<TS, TR>(this, RootState);
                 await action.Execute(actionContext, payload);

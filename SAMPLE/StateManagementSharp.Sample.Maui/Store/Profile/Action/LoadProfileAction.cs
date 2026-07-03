@@ -2,7 +2,7 @@ using ProfileContext = StateManagementSharp.ActionContext<StateManagementSharp.S
 
 namespace StateManagementSharp.Sample.Maui.Store;
 
-public class LoadProfileAction : StateManagementSharp.Action<ProfileState, InternalState>
+public class LoadProfileAction : IAction<ProfileState, InternalState>
 {
     public async Task Execute(ProfileContext context, object? payload)
     {

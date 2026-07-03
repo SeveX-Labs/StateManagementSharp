@@ -4,7 +4,7 @@ namespace StateManagementSharp
 {
     public class MutationFactoryActivator : MutationFactory
     {
-        public Mutation? CreateMutation<TM>() where TM : Mutation
+        public IMutation? CreateMutation<TM>() where TM : IMutation
         {
             return (TM?)Activator.CreateInstance(typeof(TM), true);
         }

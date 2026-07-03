@@ -1,6 +1,6 @@
 ﻿namespace StateManagementSharp
 {
-    public interface State
+    public interface IState
     {
     }
 }

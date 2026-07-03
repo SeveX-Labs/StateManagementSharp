@@ -2,7 +2,7 @@ using ProfileContext = StateManagementSharp.ActionContext<StateManagementSharp.S
 
 namespace StateManagementSharp.Sample.Maui.Store;
 
-public class ClearProfileAction : StateManagementSharp.Action<ProfileState, InternalState>
+public class ClearProfileAction : IAction<ProfileState, InternalState>
 {
     public Task Execute(ProfileContext context, object? payload)
     {

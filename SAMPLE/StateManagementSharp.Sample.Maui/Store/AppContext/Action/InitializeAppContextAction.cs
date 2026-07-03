@@ -2,7 +2,7 @@ using AppContext = StateManagementSharp.ActionContext<StateManagementSharp.Sampl
 
 namespace StateManagementSharp.Sample.Maui.Store;
 
-public class InitializeAppContextAction : StateManagementSharp.Action<AppContextState, InternalState>
+public class InitializeAppContextAction : IAction<AppContextState, InternalState>
 {
     public Task Execute(AppContext context, object? payload)
     {

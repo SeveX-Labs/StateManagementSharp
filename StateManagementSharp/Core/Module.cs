@@ -1,6 +1,6 @@
 ﻿namespace StateManagementSharp.Core
 {
-    public interface Module
+    public interface IModule
     {
         void DisposeState();
         void CreateState();

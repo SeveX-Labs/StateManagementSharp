@@ -2,6 +2,6 @@
 {
     public interface StateFactory
     {
-        S? CreateState<S>() where S : State;
+        S? CreateState<S>() where S : IState;
     }
 }

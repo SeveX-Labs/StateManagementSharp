@@ -1,6 +1,6 @@
 namespace StateManagementSharp.Sample.Maui.Store;
 
-public class InternalState : RootState
+public class InternalState : IRootState
 {
     public InternalStore Store { get; }
 

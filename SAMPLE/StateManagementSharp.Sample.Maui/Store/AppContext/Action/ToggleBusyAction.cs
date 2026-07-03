@@ -2,7 +2,7 @@ using AppContext = StateManagementSharp.ActionContext<StateManagementSharp.Sampl
 
 namespace StateManagementSharp.Sample.Maui.Store;
 
-public class ToggleBusyAction : StateManagementSharp.Action<AppContextState, InternalState>
+public class ToggleBusyAction : IAction<AppContextState, InternalState>
 {
     public Task Execute(AppContext context, object? payload)
     {

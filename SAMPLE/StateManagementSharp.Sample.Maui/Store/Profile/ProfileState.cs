@@ -1,6 +1,6 @@
 namespace StateManagementSharp.Sample.Maui.Store;
 
-public readonly struct ProfileState : State
+public readonly struct ProfileState : IState
 {
     public string? FirstName { get; }
     public string? LastName { get; }

@@ -8,7 +8,7 @@ using StateManagementSharp.Extensions;
 
 namespace StateManagementSharp
 {
-    public abstract class Store<TR> where TR : RootState
+    public abstract class Store<TR> where TR : IRootState
     {
 
         #region auto-properties
@@ -26,7 +26,7 @@ namespace StateManagementSharp
 
         private Dictionary<Type, PropertyInfo>? ModulePropertyDict { get; set; }
 
-        protected IEnumerable<StateManagementSharp.Core.Module>? Modules { get; set; }
+        protected IEnumerable<StateManagementSharp.Core.IModule>? Modules { get; set; }
 
         #endregion
 
@@ -187,9 +187,9 @@ namespace StateManagementSharp
 
             ModulePropertyDict = new Dictionary<Type, PropertyInfo>();
 
-            var actionType = typeof(Action<,>);
+            var actionType = typeof(IAction<,>);
             var moduleType = typeof(ModuleBase<,>);
-            var mutationType = typeof(Mutation<,>);
+            var mutationType = typeof(IMutation<,>);
 
             var thisType = this.GetType();
             var thisAssembly = thisType.Assembly;
@@ -204,7 +204,7 @@ namespace StateManagementSharp
                 var props = module.GetProperties();
                 foreach (var prop in props)
                 {
-                    if (typeof(State).IsAssignableFrom(prop.PropertyType))
+                    if (typeof(IState).IsAssignableFrom(prop.PropertyType))
                     {
                         moduleStateDict.Add(prop.PropertyType, module);
                     }

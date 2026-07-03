@@ -2,6 +2,6 @@
 {
     public interface MutationFactory
     {
-        Mutation? CreateMutation<M>() where M : Mutation;
+        IMutation? CreateMutation<M>() where M : IMutation;
     }
 }
