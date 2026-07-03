@@ -22,7 +22,7 @@
 For a .NET MAUI app:
 
 ```bash
-dotnet add package StateManagementSharp.Maui --version 2.0.0
+dotnet add package StateManagementSharp.Maui --version 2.0.1
 ```
 
 You don't need to install `StateManagementSharp` as well — it is a dependency of this package and is restored automatically.
@@ -92,7 +92,7 @@ Bind the `.Value` path of each `BindableValue<T>`:
 If you are not building a MAUI app, install the core package instead:
 
 ```bash
-dotnet add package StateManagementSharp --version 2.0.0
+dotnet add package StateManagementSharp --version 2.0.1
 ```
 
 and register it manually (`AddStateManagementSharp(...)` lives in the standard DI namespace `Microsoft.Extensions.DependencyInjection`):

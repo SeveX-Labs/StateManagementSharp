@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.1] - 2026-07-03
+
+Corrective release that finalizes the 2.0 package distribution. No functional or behavioral changes from 2.0.0.
+
+### Fixed
+
+* Restored the setup extension methods to their intended framework namespaces: `AddStateManagementSharp(...)` in `Microsoft.Extensions.DependencyInjection` and `UseStateManagementSharp<TStore>()` in `Microsoft.Maui.Hosting`.
+
+### Added
+
+* First successfully published build of the `StateManagementSharp.Maui` integration package (the 2.0.0 publish failed on API-key permissions), including a dedicated NuGet README.
+
+### Changed
+
+* Clarified core vs MAUI setup documentation: installation, which package to install, and when to use `AddStateManagementSharp(...)` versus `UseStateManagementSharp<TStore>()`.
+
 ## [2.0.0] - 2026-07-03
 
 ### Breaking changes

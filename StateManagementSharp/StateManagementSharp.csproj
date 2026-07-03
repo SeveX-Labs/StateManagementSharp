@@ -7,8 +7,8 @@
     <RootNamespace>StateManagementSharp</RootNamespace>
     <AssemblyName>StateManagementSharp</AssemblyName>
     <PackageId>StateManagementSharp</PackageId>
-    <Version>2.0.0</Version>
-    <PackageVersion>2.0.0</PackageVersion>
+    <Version>2.0.1</Version>
+    <PackageVersion>2.0.1</PackageVersion>
     <Title>StateManagementSharp</Title>
     <Description>Lightweight state management for .NET applications with stores, modules, actions, mutations, and Microsoft dependency injection.</Description>
     <Authors>Alessandro Severa</Authors>
@@ -19,7 +19,7 @@
     <PackageTags>state-management;state;store;modules;actions;mutations;dependency-injection;dotnet;maui;webapi</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageReleaseNotes>2.0.0 (breaking): Marker interfaces renamed to the I-prefix convention (IState, IRootState, IAction, IMutation, IModule), which resolves the System.Action name collision. New reactive change notification: Store and ModuleBase expose a StateChanged event and Observe(selector, onChanged) with distinct-until-changed. New companion package StateManagementSharp.Maui provides automatic, UI-thread-marshaled binding (UseStateManagementSharp, StoreBindableObject, BindableValue). See the README migration guide.</PackageReleaseNotes>
+    <PackageReleaseNotes>2.0.1 finalizes the 2.0 package distribution: restores setup extension methods to the intended framework namespaces, clarifies core/MAUI setup documentation, and keeps the reactive state-management behavior unchanged from 2.0.0.</PackageReleaseNotes>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <IncludeSymbols>true</IncludeSymbols>

@@ -20,8 +20,8 @@
 
     <!-- Package metadata -->
     <PackageId>StateManagementSharp.Maui</PackageId>
-    <Version>2.0.0</Version>
-    <PackageVersion>2.0.0</PackageVersion>
+    <Version>2.0.1</Version>
+    <PackageVersion>2.0.1</PackageVersion>
     <Title>StateManagementSharp.Maui</Title>
     <Description>.NET MAUI integration for StateManagementSharp: automatic, UI-thread-marshaled binding to store state via selectors, using Fody-woven bindable adapters.</Description>
     <Authors>Alessandro Severa</Authors>
@@ -32,7 +32,7 @@
     <PackageTags>state-management;maui;reactive;mvvm;bindable;dependency-injection;dotnet</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageReleaseNotes>2.0.0: First release of the MAUI integration package. Adds UseStateManagementSharp&lt;TStore&gt;, StoreBindableObject and BindableValue&lt;T&gt; for automatic, UI-thread-marshaled binding to store state.</PackageReleaseNotes>
+    <PackageReleaseNotes>2.0.1 is the first published MAUI integration package aligned with StateManagementSharp 2.0.1. It includes MAUI setup helpers, BindableValue&lt;T&gt;, StoreBindableObject, a dedicated NuGet README, and setup documentation for UseStateManagementSharp&lt;TStore&gt;().</PackageReleaseNotes>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <IncludeSymbols>true</IncludeSymbols>

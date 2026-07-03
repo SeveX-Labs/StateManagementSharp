@@ -70,13 +70,13 @@ StateManagementSharp ships as **two packages**, and the split is intentional —
 **Non-MAUI apps** (console, worker, Web API, tests, or any app that owns its own UI binding) — install the core package:
 
 ```bash
-dotnet add package StateManagementSharp --version 2.0.0
+dotnet add package StateManagementSharp --version 2.0.1
 ```
 
 **.NET MAUI apps** — install the adapter only; it brings the core in transitively, so you do **not** install the core separately:
 
 ```bash
-dotnet add package StateManagementSharp.Maui --version 2.0.0
+dotnet add package StateManagementSharp.Maui --version 2.0.1
 ```
 
 The core multi-targets `netstandard2.0`, `net8.0`, and `net10.0`; the adapter targets the MAUI platforms (`net10.0-android`, `net10.0-ios`, `net10.0-maccatalyst`). The sample app in this repository is an example and is not part of either package.
