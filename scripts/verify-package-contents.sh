@@ -20,6 +20,8 @@ fi
 
 package_entries="$(unzip -Z1 "$package_path")"
 target_frameworks=(
+  "netstandard2.0"
+  "net8.0"
   "net10.0"
 )
 assemblies=(

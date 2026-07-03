@@ -8,7 +8,6 @@ using StateManagementSharp.Extensions;
 
 namespace StateManagementSharp
 {
-    //QA-AS-2018-11-18
     public abstract class Store<TR> where TR : RootState
     {
 
@@ -55,8 +54,6 @@ namespace StateManagementSharp
             }
         }
 
-        //QA-AS-2018-11-18
-        //throws
         public async Task Dispatch(string actionName)
         {
             await Dispatch(actionName, null);
@@ -88,40 +85,11 @@ namespace StateManagementSharp
                                 var moduleInstance = ModulePropertyDict[actionModuleType].GetValue(this);
                                 if (moduleInstance is not null)
                                 {
-                                    // TODO IMPROVE THIS
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
                                     await (Task)generic.Invoke(moduleInstance, [payload]);
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
-
-
-                                    /*
-									object? invokation = generic.Invoke(moduleInstance, [payload]);
-									if (generic.ReturnType == typeof(Task) && invokation is Task task)
-									{
-										await task;
-									}
-									else if (generic.ReturnType.IsGenericType &&
-									         generic.ReturnType.GetGenericTypeDefinition() == typeof(Task<>))
-									{
-										// Se è un Task<T>, otteniamo il valore generico
-										var resultProperty = generic.ReturnType.GetProperty("Result");
-										var taskResult = resultProperty?.GetValue(invokation);
-										Console.WriteLine($"Task<T> restituisce: {taskResult}");
-									}
-									else if (generic.ReturnType == typeof(void) || invokation is null)
-									{
-										// Il metodo è void o restituisce null
-										Console.WriteLine($"Il metodo è void o restituisce null");
-									}
-									else
-									{
-										// Qualsiasi altro tipo (string, int, bool, object, etc.)
-										Console.WriteLine(
-											$"Il metodo ha restituito un valore di tipo {invokation.GetType()}: {invokation}");
-									}
-									*/
 
                                     wasDispatched = true;
                                 }
@@ -145,8 +113,6 @@ namespace StateManagementSharp
             }
         }
 
-        //QA-AS-2018-11-18
-        //throws
         public void Commit(string mutationName, object? payload)
         {
             try
@@ -176,7 +142,6 @@ namespace StateManagementSharp
                         {
                             var moduleInstance = ModulePropertyDict[mutationModuleType].GetValue(this);
 
-                            //throws
                             generic.Invoke(moduleInstance, [payload]);
 
                             wasCommitted = true;
@@ -209,7 +174,6 @@ namespace StateManagementSharp
 
 
 
-        //QA-AS-2018-11-18
         private void BuildTypesCache()
         {
             WasCacheBuilt = true;
