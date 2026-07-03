@@ -10,6 +10,8 @@ namespace StateManagementSharp
 {
     public abstract class Store<TR> where TR : IRootState
     {
+        /// <summary>Raised after any module in this store commits a mutation.</summary>
+        public event EventHandler? StateChanged;
 
         #region auto-properties
 
@@ -44,6 +46,8 @@ namespace StateManagementSharp
             {
                 foreach (var module in Modules)
                 {
+                    module.StateChanged -= OnModuleStateChanged;
+                    module.StateChanged += OnModuleStateChanged;
                     module.DisposeState();
                     module.CreateState();
                 }
@@ -52,6 +56,11 @@ namespace StateManagementSharp
             {
                 System.Diagnostics.Debug.WriteLine("No Modules have been created");
             }
+        }
+
+        private void OnModuleStateChanged(object? sender, EventArgs e)
+        {
+            StateChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public async Task Dispatch(string actionName)
@@ -164,6 +173,41 @@ namespace StateManagementSharp
             {
                 throw new CommitFailedException(ex.Message, ex);
             }
+        }
+
+        /// <summary>
+        /// Observes a projection of the root state. Invokes <paramref name="onChanged"/> once
+        /// immediately with the current value (if state exists), then again after any module commit
+        /// whose projected value differs from the previous one. Dispose the result to stop observing.
+        /// </summary>
+        public IDisposable Observe<TValue>(Func<TR, TValue> selector, Action<TValue> onChanged, IEqualityComparer<TValue>? comparer = null)
+        {
+            if (selector is null) throw new ArgumentNullException(nameof(selector));
+            if (onChanged is null) throw new ArgumentNullException(nameof(onChanged));
+
+            comparer ??= EqualityComparer<TValue>.Default;
+
+            var hasValue = false;
+            TValue last = default!;
+
+            void Emit()
+            {
+                var current = State;
+                if (current is null) return;
+
+                var next = selector(current);
+                if (hasValue && comparer.Equals(last, next)) return;
+
+                last = next;
+                hasValue = true;
+                onChanged(next);
+            }
+
+            Emit();
+
+            EventHandler handler = (_, _) => Emit();
+            StateChanged += handler;
+            return new CallbackDisposable(() => StateChanged -= handler);
         }
 
         public abstract void InitState();
