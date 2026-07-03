@@ -1,10 +1,8 @@
 using System;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Maui.Hosting;
-using StateManagementSharp.Extensions;
 
-namespace StateManagementSharp.Maui
+namespace Microsoft.Maui.Hosting
 {
     /// <summary>
     /// MAUI host integration for StateManagementSharp.

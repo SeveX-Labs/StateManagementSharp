@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using StateManagementSharp.Maui;
 using StateManagementSharp.Sample.Maui.Store;
 using StateManagementSharp.Sample.Maui.ViewModels;
 using StateManagementSharp.Sample.Maui.Views;
