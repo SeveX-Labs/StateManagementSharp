@@ -45,3 +45,44 @@ jobs:
         run: dotnet nuget push "artifacts/*.nupkg" --api-key "${{ secrets.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
       - name: Publish symbols
         run: dotnet nuget push "artifacts/*.snupkg" --api-key "${{ secrets.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+  publish-maui:
+    name: Pack and publish MAUI package
+    runs-on: macos-26
+
+    env:
+      CI_MAUI_VERSION: 10.0.20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+      - name: Install MAUI workload
+        run: dotnet workload install maui --skip-manifest-update
+      - name: Pack MAUI package
+        run: >
+          dotnet pack StateManagementSharp.Maui/StateManagementSharp.Maui.csproj
+          -c Release
+          -o artifacts
+          -p:MauiVersion=${{ env.CI_MAUI_VERSION }}
+          -p:ContinuousIntegrationBuild=true
+      - name: Verify MAUI package contents
+        run: |
+          package_path=$(find artifacts -maxdepth 1 -name 'StateManagementSharp.Maui.*.nupkg' ! -name '*.snupkg' -print -quit)
+          scripts/verify-maui-package-contents.sh "$package_path"
+      - name: Upload MAUI package artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages-maui
+          path: |
+            artifacts/StateManagementSharp.Maui.*.nupkg
+            artifacts/StateManagementSharp.Maui.*.snupkg
+      - name: Publish MAUI package
+        run: dotnet nuget push "artifacts/StateManagementSharp.Maui.*.nupkg" --api-key "${{ secrets.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+      - name: Publish MAUI symbols
+        run: dotnet nuget push "artifacts/StateManagementSharp.Maui.*.snupkg" --api-key "${{ secrets.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate

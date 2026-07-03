@@ -19,3 +19,6 @@ out/
 *.log
 TestResults/
 .codex-reference/
+
+# Fody generates this schema on build; it is not a source file
+**/FodyWeavers.xsd

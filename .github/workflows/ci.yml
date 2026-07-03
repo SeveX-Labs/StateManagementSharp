@@ -60,3 +60,11 @@ jobs:
           -p:UseSharedCompilation=false
           -p:MauiVersion=${{ env.CI_MAUI_VERSION }}
           -p:RuntimeIdentifier=${{ env.ANDROID_RID }}
+
+      - name: Build MAUI integration package (android/ios/maccatalyst)
+        run: >
+          dotnet build StateManagementSharp.Maui/StateManagementSharp.Maui.csproj
+          -c Release
+          -m:1
+          -p:UseSharedCompilation=false
+          -p:MauiVersion=${{ env.CI_MAUI_VERSION }}
