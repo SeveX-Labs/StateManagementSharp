@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using StateManagementSharp;
 using StateManagementSharp.Exceptions;
+using StateManagementSharp.Extensions;
 using Xunit;
 
 namespace StateManagementSharp.Tests;

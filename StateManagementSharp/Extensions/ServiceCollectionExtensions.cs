@@ -1,11 +1,10 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using StateManagementSharp;
-using StateManagementSharp.Extensions;
 
-namespace Microsoft.Extensions.DependencyInjection
+namespace StateManagementSharp.Extensions
 {
     public static class ServiceCollectionExtensions
     {

@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using Microsoft.Maui.Hosting;
+using StateManagementSharp.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
