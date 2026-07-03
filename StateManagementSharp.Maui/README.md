@@ -30,12 +30,14 @@ You don't need to install `StateManagementSharp` as well — it is a dependency 
 ## Recommended MAUI setup
 
 ```csharp
+using Microsoft.Maui.Hosting;
+
 builder
     .UseMauiApp<App>()
     .UseStateManagementSharp<InternalStore>();
 ```
 
-`UseStateManagementSharp<TStore>()`:
+`UseStateManagementSharp<TStore>()` is available through the standard MAUI namespace `Microsoft.Maui.Hosting`, and:
 
 - registers the StateManagementSharp core services;
 - scans an assembly for actions, defaulting to `typeof(TStore).Assembly`;
@@ -93,9 +95,11 @@ If you are not building a MAUI app, install the core package instead:
 dotnet add package StateManagementSharp --version 2.0.0
 ```
 
-and register it manually:
+and register it manually (`AddStateManagementSharp(...)` lives in the standard DI namespace `Microsoft.Extensions.DependencyInjection`):
 
 ```csharp
+using Microsoft.Extensions.DependencyInjection;
+
 builder.Services.AddStateManagementSharp(typeof(InternalStore).Assembly);
 builder.Services.AddSingleton<InternalStore>();
 ```

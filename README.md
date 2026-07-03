@@ -110,11 +110,13 @@ New in 2.0: subscribe to `Store.StateChanged` / `ModuleBase.StateChanged`, or ca
 In a console, worker, Web API, test, or any non-MAUI app, register the services and your store on the DI container directly:
 
 ```csharp
+using Microsoft.Extensions.DependencyInjection;
+
 builder.Services.AddStateManagementSharp(typeof(InternalStore).Assembly);
 builder.Services.AddSingleton<InternalStore>();
 ```
 
-`AddStateManagementSharp(...)` registers the library factories and scans the assemblies you pass for concrete action types (resolved from DI). Pass the assembly that contains your store, its modules, actions, and mutations — typically `typeof(InternalStore).Assembly`, because discovery expects them to live together. The store itself is not auto-registered, so add it yourself (a singleton for app-wide state):
+`AddStateManagementSharp(...)` is available through the standard DI namespace `Microsoft.Extensions.DependencyInjection`. It registers the library factories and scans the assemblies you pass for concrete action types (resolved from DI). Pass the assembly that contains your store, its modules, actions, and mutations — typically `typeof(InternalStore).Assembly`, because discovery expects them to live together. The store itself is not auto-registered, so add it yourself (a singleton for app-wide state):
 
 ```csharp
 builder.Services.AddStateManagementSharp(scanAssemblies);   // scanAssemblies must include the store's assembly
@@ -257,12 +259,14 @@ Callbacks run synchronously on the thread that committed; UI-thread marshaling i
 With the `StateManagementSharp.Maui` package, the **recommended setup** is a single call on the app builder:
 
 ```csharp
+using Microsoft.Maui.Hosting;
+
 builder
     .UseMauiApp<App>()
     .UseStateManagementSharp<InternalStore>();
 ```
 
-`UseStateManagementSharp<TStore>()` does, in one step, everything the core setup does: it registers the StateManagementSharp core services, scans an assembly for actions (defaulting to `typeof(TStore).Assembly`), and registers `TStore` as a singleton. So in a MAUI app you don't also call `builder.Services.AddStateManagementSharp(...)` and `AddSingleton<InternalStore>()` for the same store — that is already covered. (Pass explicit assemblies, e.g. `UseStateManagementSharp<InternalStore>(extraAssembly)`, only when your actions live outside the store's assembly.)
+`UseStateManagementSharp<TStore>()` is available through the standard MAUI namespace `Microsoft.Maui.Hosting`. It does, in one step, everything the core setup does: it registers the StateManagementSharp core services, scans an assembly for actions (defaulting to `typeof(TStore).Assembly`), and registers `TStore` as a singleton. So in a MAUI app you don't also call `builder.Services.AddStateManagementSharp(...)` and `AddSingleton<InternalStore>()` for the same store — that is already covered. (Pass explicit assemblies, e.g. `UseStateManagementSharp<InternalStore>(extraAssembly)`, only when your actions live outside the store's assembly.)
 
 Derive the view model from `StoreBindableObject` and bind selectors to `BindableValue<T>` properties. Changes are marshaled to the UI thread automatically — no manual refresh, no hand-written `INotifyPropertyChanged`:
 
