@@ -47,6 +47,16 @@ if grep -Eiq "^lib/.*/(Fody|PropertyChanged)\.dll$" <<<"$package_entries"; then
   problem_count=$((problem_count + 1))
 fi
 
+# The dedicated MAUI README must be packed (not the core/root README).
+readme_content="$(unzip -p "$package_path" README.md 2>/dev/null || true)"
+if ! grep -Eq "^README\.md$" <<<"$package_entries"; then
+  echo "README.md is missing from the package." >&2
+  problem_count=$((problem_count + 1))
+elif ! grep -Eq "^# StateManagementSharp\.Maui\b" <<<"$readme_content"; then
+  echo "Packed README.md is not the dedicated MAUI README (expected a '# StateManagementSharp.Maui' heading)." >&2
+  problem_count=$((problem_count + 1))
+fi
+
 if [[ "$problem_count" -gt 0 ]]; then
   echo "MAUI package verification failed: $problem_count problem(s)." >&2
   exit 1
