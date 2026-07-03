@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace StateManagementSharp.Extensions
 {
-    public static class TypeExtensions
+    internal static class TypeExtensions
     {
         public static IEnumerable<Type> GetAllImplementingTypes(this Type openGenericType, Assembly assembly)
         {
