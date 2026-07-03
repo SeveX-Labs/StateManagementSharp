@@ -1,120 +1,44 @@
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using Microsoft.Maui.Controls;
+using Microsoft.Maui.Dispatching;
+using StateManagementSharp.Maui;
 using StateManagementSharp.Sample.Maui.Store;
 
 namespace StateManagementSharp.Sample.Maui.ViewModels;
 
-public class MainPageViewModel : INotifyPropertyChanged
+public class MainPageViewModel : StoreBindableObject
 {
     private readonly InternalStore _store;
 
-    private string _applicationTitle = string.Empty;
-    private bool _isBusy;
-    private string? _firstName;
-    private string? _lastName;
-    private string? _email;
-    private bool _isProfileLoaded;
-
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    public string ApplicationTitle
+    public MainPageViewModel(InternalStore store, IDispatcher dispatcher)
+        : base(dispatcher)
     {
-        get => _applicationTitle;
-        private set => SetProperty(ref _applicationTitle, value);
+        _store = store;
+        _store.InitializeStore();
+
+        // Bind selectors -> UI-thread-marshaled bindable values. No manual refresh anywhere.
+        ApplicationTitle = Bind(store.AppContextModule, s => s.ApplicationTitle);
+        IsBusy = Bind(store.AppContextModule, s => s.IsBusy);
+        FirstName = Bind(store.ProfileModule, s => s.FirstName);
+        LastName = Bind(store.ProfileModule, s => s.LastName);
+        Email = Bind(store.ProfileModule, s => s.Email);
+        IsProfileLoaded = Bind(store.ProfileModule, s => s.IsLoaded);
+
+        InitializeCommand = new Command(async () => await _store.AppContextModule.Dispatch<InitializeAppContextAction>());
+        ToggleBusyCommand = new Command(async () => await _store.AppContextModule.Dispatch<ToggleBusyAction>());
+        LoadProfileCommand = new Command(async () => await _store.ProfileModule.Dispatch<LoadProfileAction>());
+        ClearProfileCommand = new Command(async () => await _store.ProfileModule.Dispatch<ClearProfileAction>());
     }
 
-    public bool IsBusy
-    {
-        get => _isBusy;
-        private set => SetProperty(ref _isBusy, value);
-    }
-
-    public string? FirstName
-    {
-        get => _firstName;
-        private set => SetProperty(ref _firstName, value);
-    }
-
-    public string? LastName
-    {
-        get => _lastName;
-        private set => SetProperty(ref _lastName, value);
-    }
-
-    public string? Email
-    {
-        get => _email;
-        private set => SetProperty(ref _email, value);
-    }
-
-    public bool IsProfileLoaded
-    {
-        get => _isProfileLoaded;
-        private set => SetProperty(ref _isProfileLoaded, value);
-    }
+    public BindableValue<string> ApplicationTitle { get; }
+    public BindableValue<bool> IsBusy { get; }
+    public BindableValue<string?> FirstName { get; }
+    public BindableValue<string?> LastName { get; }
+    public BindableValue<string?> Email { get; }
+    public BindableValue<bool> IsProfileLoaded { get; }
 
     public ICommand InitializeCommand { get; }
     public ICommand ToggleBusyCommand { get; }
     public ICommand LoadProfileCommand { get; }
     public ICommand ClearProfileCommand { get; }
-
-    public MainPageViewModel(InternalStore store)
-    {
-        _store = store;
-        _store.InitializeStore();
-
-        InitializeCommand = new Command(async () => await InitializeAsync());
-        ToggleBusyCommand = new Command(async () => await ToggleBusyAsync());
-        LoadProfileCommand = new Command(async () => await LoadProfileAsync());
-        ClearProfileCommand = new Command(async () => await ClearProfileAsync());
-
-        RefreshFromStore();
-    }
-
-    private async Task InitializeAsync()
-    {
-        await _store.AppContextModule.Dispatch<InitializeAppContextAction>();
-        RefreshFromStore();
-    }
-
-    private async Task ToggleBusyAsync()
-    {
-        await _store.AppContextModule.Dispatch<ToggleBusyAction>();
-        RefreshFromStore();
-    }
-
-    private async Task LoadProfileAsync()
-    {
-        await _store.ProfileModule.Dispatch<LoadProfileAction>();
-        RefreshFromStore();
-    }
-
-    private async Task ClearProfileAsync()
-    {
-        await _store.ProfileModule.Dispatch<ClearProfileAction>();
-        RefreshFromStore();
-    }
-
-    private void RefreshFromStore()
-    {
-        var appContext = _store.State?.AppContextState ?? default;
-        var profile = _store.State?.ProfileState ?? default;
-
-        ApplicationTitle = appContext.ApplicationTitle;
-        IsBusy = appContext.IsBusy;
-        FirstName = profile.FirstName;
-        LastName = profile.LastName;
-        Email = profile.Email;
-        IsProfileLoaded = profile.IsLoaded;
-    }
-
-    private bool SetProperty<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
-    {
-        if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-
-        field = value;
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        return true;
-    }
 }

@@ -5,7 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:viewModels="clr-namespace:StateManagementSharp.Sample.Maui.ViewModels"
     x:DataType="viewModels:MainPageViewModel"
-    Title="{Binding ApplicationTitle}"
+    Title="{Binding ApplicationTitle.Value}"
     BackgroundColor="{StaticResource PageBackgroundColor}">
 
     <ScrollView>
@@ -13,22 +13,22 @@
             <Label
                 FontAttributes="Bold"
                 FontSize="28"
-                Text="{Binding ApplicationTitle}"
+                Text="{Binding ApplicationTitle.Value}"
                 TextColor="{StaticResource PrimaryTextColor}" />
 
             <HorizontalStackLayout Spacing="8">
                 <Label FontAttributes="Bold" Text="Busy:" />
-                <Label Text="{Binding IsBusy}" />
+                <Label Text="{Binding IsBusy.Value}" />
             </HorizontalStackLayout>
 
             <BoxView HeightRequest="1" Color="#D6DAE0" />
 
             <VerticalStackLayout Spacing="6">
                 <Label FontAttributes="Bold" FontSize="20" Text="Profile" />
-                <Label Text="{Binding FirstName, StringFormat='First name: {0}', TargetNullValue='First name: -'}" />
-                <Label Text="{Binding LastName, StringFormat='Last name: {0}', TargetNullValue='Last name: -'}" />
-                <Label Text="{Binding Email, StringFormat='Email: {0}', TargetNullValue='Email: -'}" />
-                <Label Text="{Binding IsProfileLoaded, StringFormat='Loaded: {0}'}" />
+                <Label Text="{Binding FirstName.Value, StringFormat='First name: {0}', TargetNullValue='First name: -'}" />
+                <Label Text="{Binding LastName.Value, StringFormat='Last name: {0}', TargetNullValue='Last name: -'}" />
+                <Label Text="{Binding Email.Value, StringFormat='Email: {0}', TargetNullValue='Email: -'}" />
+                <Label Text="{Binding IsProfileLoaded.Value, StringFormat='Loaded: {0}'}" />
             </VerticalStackLayout>
 
             <Grid ColumnDefinitions="*,*" ColumnSpacing="12" RowDefinitions="Auto,Auto" RowSpacing="12">

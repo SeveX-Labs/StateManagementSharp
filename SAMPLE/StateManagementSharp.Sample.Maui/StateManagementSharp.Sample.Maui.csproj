@@ -74,6 +74,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\StateManagementSharp\StateManagementSharp.csproj" />
+      <ProjectReference Include="..\..\StateManagementSharp.Maui\StateManagementSharp.Maui.csproj" />
     </ItemGroup>
 
 </Project>
