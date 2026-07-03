@@ -9,6 +9,8 @@ StateManagementSharp is a lightweight, dependency-injection-native library for *
 
 It is conceptually inspired by store/module/action/mutation architectures (such as Vuex and NGXS), but it is a pure .NET library: no JavaScript runtime, no Vue/Angular dependency, and it builds directly on `Microsoft.Extensions.DependencyInjection`.
 
+See [CHANGELOG.md](CHANGELOG.md) for release history.
+
 ## What it is (and what it is not)
 
 **It is** a small, structured container for state that is shared across many parts of an app — the kind of state that does not belong to a single view or view model (session/profile, app context, feature-level domain state) — plus a disciplined way to read and change it.
@@ -48,8 +50,8 @@ With the **`StateManagementSharp.Maui`** package, a view model derives from `Sto
 
 - Store-based application state with `Store<TRootState>`.
 - Feature modules through `ModuleBase<TState, TRootState>`.
-- Asynchronous actions through `Action<TState, TRootState>`.
-- State updates through `Mutation<TState, TPayload>`.
+- Asynchronous actions through `IAction<TState, TRootState>`.
+- State updates through `IMutation<TState, TPayload>`.
 - Typed module dispatch with `Dispatch<TAction>()` and typed commits with `Commit<TMutation, TPayload>(payload)`.
 - Name-based `Dispatch(actionName)` and `Commit(mutationName, payload)` where supported.
 - Change notification via `StateChanged` events on `Store`/`ModuleBase`, plus `Observe(selector, onChanged)` with distinct-until-changed.

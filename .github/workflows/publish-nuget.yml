@@ -49,6 +49,7 @@ jobs:
   publish-maui:
     name: Pack and publish MAUI package
     runs-on: macos-26
+    needs: publish
 
     env:
       CI_MAUI_VERSION: 10.0.20
