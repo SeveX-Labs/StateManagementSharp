@@ -62,19 +62,31 @@ With the **`StateManagementSharp.Maui`** package, a view model derives from `Sto
 
 ## Installation
 
-Install the package from NuGet:
+StateManagementSharp ships as **two packages**, and the split is intentional — not an accidental complication:
+
+- **`StateManagementSharp`** — the UI-agnostic core, usable from any .NET app.
+- **`StateManagementSharp.Maui`** — an optional .NET MAUI adapter (`StoreBindableObject`, `BindableValue<T>`, `UseStateManagementSharp<TStore>()`) that **depends on and includes the core**.
+
+**Non-MAUI apps** (console, worker, Web API, tests, or any app that owns its own UI binding) — install the core package:
 
 ```bash
 dotnet add package StateManagementSharp --version 2.0.0
 ```
 
-For .NET MAUI apps, also install the integration package (it depends on the core package):
+**.NET MAUI apps** — install the adapter only; it brings the core in transitively, so you do **not** install the core separately:
 
 ```bash
 dotnet add package StateManagementSharp.Maui --version 2.0.0
 ```
 
-The core `StateManagementSharp` package multi-targets `netstandard2.0`, `net8.0`, and `net10.0`. `StateManagementSharp.Maui` targets the MAUI platforms (`net10.0-android`, `net10.0-ios`, `net10.0-maccatalyst`). The MAUI sample app in this repository is an example and is not part of either package.
+The core multi-targets `netstandard2.0`, `net8.0`, and `net10.0`; the adapter targets the MAUI platforms (`net10.0-android`, `net10.0-ios`, `net10.0-maccatalyst`). The sample app in this repository is an example and is not part of either package.
+
+### Which package should I install?
+
+| Scenario | Install | Recommended setup |
+| --- | --- | --- |
+| Console / worker / Web API / tests | `StateManagementSharp` | `services.AddStateManagementSharp(typeof(MyStore).Assembly)` + register the store |
+| .NET MAUI with binding helpers | `StateManagementSharp.Maui` | `builder.UseStateManagementSharp<MyStore>()` |
 
 ## Migrating from 1.x to 2.0
 
@@ -93,16 +105,21 @@ The core `StateManagementSharp` package multi-targets `netstandard2.0`, `net8.0`
 
 New in 2.0: subscribe to `Store.StateChanged` / `ModuleBase.StateChanged`, or call `Observe(selector, onChanged)` for fine-grained updates. In MAUI, add the `StateManagementSharp.Maui` package and derive view models from `StoreBindableObject` instead of hand-writing `INotifyPropertyChanged`.
 
-## Basic Setup
+## Core setup (non-MAUI)
 
-Register StateManagementSharp services and your store in DI:
+In a console, worker, Web API, test, or any non-MAUI app, register the services and your store on the DI container directly:
 
 ```csharp
 builder.Services.AddStateManagementSharp(typeof(InternalStore).Assembly);
 builder.Services.AddSingleton<InternalStore>();
 ```
 
-`AddStateManagementSharp` registers the library factories and scans the provided assemblies for action implementations that should be resolved from DI.
+`AddStateManagementSharp(...)` registers the library factories and scans the assemblies you pass for concrete action types (resolved from DI). Pass the assembly that contains your store, its modules, actions, and mutations — typically `typeof(InternalStore).Assembly`, because discovery expects them to live together. The store itself is not auto-registered, so add it yourself (a singleton for app-wide state):
+
+```csharp
+builder.Services.AddStateManagementSharp(scanAssemblies);   // scanAssemblies must include the store's assembly
+builder.Services.AddSingleton<InternalStore>();
+```
 
 ## Minimal Example
 
@@ -237,13 +254,15 @@ Callbacks run synchronously on the thread that committed; UI-thread marshaling i
 
 ## .NET MAUI Usage
 
-Install `StateManagementSharp.Maui` and register the store on the app builder:
+With the `StateManagementSharp.Maui` package, the **recommended setup** is a single call on the app builder:
 
 ```csharp
 builder
     .UseMauiApp<App>()
-    .UseStateManagementSharp<InternalStore>();   // factories + action scan + AddSingleton<InternalStore>
+    .UseStateManagementSharp<InternalStore>();
 ```
+
+`UseStateManagementSharp<TStore>()` does, in one step, everything the core setup does: it registers the StateManagementSharp core services, scans an assembly for actions (defaulting to `typeof(TStore).Assembly`), and registers `TStore` as a singleton. So in a MAUI app you don't also call `builder.Services.AddStateManagementSharp(...)` and `AddSingleton<InternalStore>()` for the same store — that is already covered. (Pass explicit assemblies, e.g. `UseStateManagementSharp<InternalStore>(extraAssembly)`, only when your actions live outside the store's assembly.)
 
 Derive the view model from `StoreBindableObject` and bind selectors to `BindableValue<T>` properties. Changes are marshaled to the UI thread automatically — no manual refresh, no hand-written `INotifyPropertyChanged`:
 
