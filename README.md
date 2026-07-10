@@ -99,7 +99,7 @@ The core multi-targets `netstandard2.0`, `net8.0`, and `net10.0`; the adapter ta
 | `Action` / `Action<TS, TR>` | `IAction` / `IAction<TS, TR>` |
 | `Mutation` / `Mutation<S, P>` | `IMutation` / `IMutation<S, P>` |
 | `Module` | `IModule` |
-| `StateManagementSharp.Action<...>` (qualified to dodge `System.Action`) | `IAction<...>` (no qualification needed) |
+| `StateManagementSharp.IAction<...>` (qualified to dodge `System.Action`) | `IAction<...>` (no qualification needed) |
 
 `ActionContext<TS, TR>`, the factory interfaces (`ActionFactory`, `MutationFactory`, `StateFactory`), `Store<TR>`, and `ModuleBase<TS, TR>` keep their names. A whole-word replace of the five marker names in type positions covers almost every project; then drop any `StateManagementSharp.` qualifier in front of `Action`.
 

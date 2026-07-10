@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk" TreatAsLocalProperty="PublishTrimmed">
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net8.0;net10.0</TargetFrameworks>
@@ -28,6 +28,15 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
     <Configurations>Debug;Release;Release_Staging</Configurations>
+  </PropertyGroup>
+
+  <!-- netstandard2.0 non supporta il trimming IL (NETSDK1124: il trimming richiede .NETCoreApp 3.0+).
+       Il Publish MAUI Android di Rider propaga PublishTrimmed=true come proprieta' GLOBALE sull'intera
+       solution (restore/publish solution-scope), quindi raggiunge anche questo TFM: lo neutralizziamo
+       solo per netstandard2.0. TreatAsLocalProperty sul tag Project consente di sovrascrivere il globale.
+       Il trimming resta responsabilita' dell'app finale e non viene toccato per net8.0 / net10.0. -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PublishTrimmed>false</PublishTrimmed>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release_Staging|AnyCPU' ">
